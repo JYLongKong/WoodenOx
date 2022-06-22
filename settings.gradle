@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "WoodenOx"
 include ':app'
+include ':woodenox'
+include ':woodenoxImpl'
