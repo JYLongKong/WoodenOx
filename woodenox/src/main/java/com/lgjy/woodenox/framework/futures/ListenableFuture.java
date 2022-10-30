@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.lgjy.woodenox.futures;
+package com.lgjy.woodenox.framework.futures;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;

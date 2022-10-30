@@ -1,4 +1,4 @@
-package com.lgjy.woodenox.scheduler
+package com.lgjy.woodenox.framework.scheduler
 
 import com.lgjy.woodenox.db.Task
 

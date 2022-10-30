@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lgjy.woodenox.futures;
+package com.lgjy.woodenox.framework.futures;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

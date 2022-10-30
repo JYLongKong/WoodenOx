@@ -1,9 +1,9 @@
-package com.lgjy.woodenox.task
+package com.lgjy.woodenox.framework.task
 
 import com.lgjy.woodenox.entity.TaskParameters
 import com.lgjy.woodenox.entity.TaskResult
-import com.lgjy.woodenox.futures.ListenableFuture
-import com.lgjy.woodenox.futures.SettableFuture
+import com.lgjy.woodenox.framework.futures.ListenableFuture
+import com.lgjy.woodenox.framework.futures.SettableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher

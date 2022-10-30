@@ -1,8 +1,8 @@
-package com.lgjy.woodenox.task
+package com.lgjy.woodenox.framework.task
 
 import com.lgjy.woodenox.entity.TaskParameters
 import com.lgjy.woodenox.entity.TaskResult
-import com.lgjy.woodenox.futures.ListenableFuture
+import com.lgjy.woodenox.framework.futures.ListenableFuture
 
 /**
  * Created by LGJY on 2022/6/22.

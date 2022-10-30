@@ -1,4 +1,4 @@
-package com.lgjy.woodenox.executor
+package com.lgjy.woodenox.framework.executor
 
 import java.util.ArrayDeque
 import java.util.concurrent.Executor

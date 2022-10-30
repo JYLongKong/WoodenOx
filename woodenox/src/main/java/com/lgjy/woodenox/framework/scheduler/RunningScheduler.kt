@@ -1,24 +1,35 @@
-package com.lgjy.woodenox.scheduler
+package com.lgjy.woodenox.framework.scheduler
 
+import com.lgjy.woodenox.api.WoodenOxImpl
+import com.lgjy.woodenox.condition.EnvConditionListener
 import com.lgjy.woodenox.db.Task
+import com.lgjy.woodenox.db.TaskDatabase
 import com.lgjy.woodenox.entity.TaskState
+import com.lgjy.woodenox.framework.task.ConstrainedTask
 import com.lgjy.woodenox.util.LogP
 import org.json.JSONObject
 
 /**
  * Created by LGJY on 2022/6/22.
  * Email：yujye@sina.com
+ *
+ * 任务调度器
+ *
+ * 0.从DB加载初始化调度器
+ * 1.管理受限任务(因为执行条件不满足而被阻塞的任务)
+ * 2.取消调度任务
+ * 3.任务执行完成->调度子任务/重新调度任务
  */
 
 class RunningScheduler internal constructor(
-    private val mTaskManagerImpl: TaskManagerImpl,
+    private val woodenOxImpl: WoodenOxImpl,
     taskDatabase: TaskDatabase
 ) : TaskScheduler, ExecutionListener, EnvConditionListener {
 
-    private val mTaskDao = taskDatabase.TaskDao()
+    private val taskDao = taskDatabase.TaskDao()
 
     // 任务条件管理器
-    private val mConditionManager = mTaskManagerImpl.configuration.conditionManager
+    private val mConditionManager = woodenOxImpl.configuration.conditionManager
         .also { it.outerEnvConditionListener = this }
 
     // 受限任务存储和对其相关操作
@@ -26,22 +37,22 @@ class RunningScheduler internal constructor(
 
     override suspend fun reload() {
         LogP.d(TAG, "reload()")
-        val blockedTasks = mTaskDao.getTaskWithState(TaskState.BLOCKED)
+        val blockedTasks = taskDao.getTaskWithState(TaskState.BLOCKED)
         mConstrainedTask.clear()
         schedule(*blockedTasks.toTypedArray())
     }
 
     override fun schedule(vararg tasks: Task) {
-        mTaskManagerImpl.getProcessor().addExecutionListener(this)
+        woodenOxImpl.getProcessor().addExecutionListener(this)
 
         val temp = arrayListOf<Task>()
         for (task in tasks) {
             if (task.state == TaskState.ENQUEUED || task.state == TaskState.BLOCKED) {
                 if (mConditionManager.isMetCondition(task)) {   // 当前条件满足
                     if (task.state == TaskState.BLOCKED) {
-                        mTaskDao.setTaskState(TaskState.ENQUEUED, task.taskId)
+                        taskDao.setTaskState(TaskState.ENQUEUED, task.taskId)
                     }
-                    mTaskManagerImpl.startTask(task.taskId)
+                    woodenOxImpl.startTask(task.taskId)
                 } else {    // 当前条件不满足
                     temp.add(task)
                 }
@@ -54,32 +65,32 @@ class RunningScheduler internal constructor(
         mConstrainedTask.putAll(temp)
         // 同步阻塞态到DB
         val blockIds = temp.filter { it.state != TaskState.BLOCKED }.map { it.taskId }
-        mTaskDao.setTaskState(TaskState.BLOCKED, *blockIds.toLongArray())
+        taskDao.setTaskState(TaskState.BLOCKED, *blockIds.toLongArray())
     }
 
     override fun cancel(taskId: Long) {
-        mTaskDao.setTaskState(TaskState.CANCELLED, taskId)
-        mTaskManagerImpl.getProcessor().addExecutionListener(this)
+        taskDao.setTaskState(TaskState.CANCELLED, taskId)
+        woodenOxImpl.getProcessor().addExecutionListener(this)
         mConstrainedTask.remove(taskId)
-        mTaskManagerImpl.stopTask(taskId)
+        woodenOxImpl.stopTask(taskId)
     }
 
     override fun onExecuted(taskId: Long, endedState: TaskState) {
         mConstrainedTask.remove(taskId)
 
         if (endedState == TaskState.SUCCEEDED) {
-            mTaskDao.getTaskWithId(taskId)?.let { task ->
+            taskDao.getTaskWithId(taskId)?.let { task ->
                 if (task.nextTaskId == 0L) {    // 没有子任务
                     // 同步整条任务链为成功
 //                    mTaskDao.setChainStateWithChildId(TaskState.SUCCEEDED, taskId)
                 } else {    // 仍有子任务
-                    val nextTask = mTaskDao.getTaskWithId(task.nextTaskId)
+                    val nextTask = taskDao.getTaskWithId(task.nextTaskId)
                     if (nextTask == null) {
                         LogP.e(TAG, "onExecuted: ")
                         return
                     }
                     if (nextTask.state != TaskState.ENQUEUED) {
-                        mTaskDao.setTaskState(TaskState.ENQUEUED, nextTask.taskId)
+                        taskDao.setTaskState(TaskState.ENQUEUED, nextTask.taskId)
                     }
 
                     // 将任务的结果传递到子任务的参数中
@@ -91,14 +102,14 @@ class RunningScheduler internal constructor(
                     schedule(nextTask)
                 }
             }
-        } else if (mTaskDao.getAttemptTimes(taskId) > THRESHOLD_RECYCLED_TIMES) { // 失败次数超过阈值
+        } else if (taskDao.getAttemptTimes(taskId) > THRESHOLD_RECYCLED_TIMES) { // 失败次数超过阈值
             // 同步整条任务链为回收
-            mTaskDao.setChainStateWithChildId(TaskState.RECYCLED, taskId)
+            taskDao.setChainStateWithChildId(TaskState.RECYCLED, taskId)
         } else {    // 执行失败
             // 同步整条任务链为入队
-            mTaskDao.setChainStateWithChildId(TaskState.ENQUEUED, taskId)
+            taskDao.setChainStateWithChildId(TaskState.ENQUEUED, taskId)
             // 重新调度任务入队执行
-            mTaskManagerImpl.enqueueTask(taskId)
+            woodenOxImpl.enqueueTask(taskId)
         }
     }
 
@@ -106,7 +117,7 @@ class RunningScheduler internal constructor(
         when {
             envCond and mConstrainedTask.getCondtionRequired() == mConstrainedTask.getCondtionRequired() -> { // 条件全部满足
                 mConstrainedTask.getConstrainedTasks()
-                    .forEach { mTaskManagerImpl.startTask(it.taskId) }
+                    .forEach { woodenOxImpl.startTask(it.taskId) }
                 mConstrainedTask.clear()
             }
             envCond and mConstrainedTask.getCondtionRequired() == 0 -> {   // 条件全都不满足
@@ -116,7 +127,7 @@ class RunningScheduler internal constructor(
             else -> {    // 部分条件满足
                 val metConditionTasks = mConstrainedTask.getConstrainedTasks()
                     .filter { mConditionManager.isMetCondition(it) }
-                    .onEach { mTaskManagerImpl.startTask(it.taskId) }
+                    .onEach { woodenOxImpl.startTask(it.taskId) }
 
                 mConstrainedTask.removeAll(metConditionTasks)
             }
@@ -176,6 +187,6 @@ class RunningScheduler internal constructor(
     }
 
     companion object {
-        private val TAG = "===".intern() + RunningScheduler::class.java.simpleName
+        private const val TAG = "===RunningScheduler"
     }
 }

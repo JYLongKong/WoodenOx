@@ -18,6 +18,6 @@
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-package com.lgjy.woodenox.futures;
+package com.lgjy.woodenox.framework.futures;
 
 import androidx.annotation.RestrictTo;
