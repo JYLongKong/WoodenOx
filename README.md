@@ -1,6 +1,6 @@
 # 木牛流马（WoodenOx）
 
-#### --（延迟）离线任务解决方案
+#### （延迟）离线任务解决方案
 
 ### 背景
 
@@ -41,7 +41,7 @@
 
 ### 竞品对比
 
-不可否认，该项目借鉴了**[WorkManager](https://developer.android.google.cn/topic/libraries/architecture/workmanager)**的思想，但侧重点不同。
+不可否认，该项目借鉴了[WorkManager](https://developer.android.google.cn/topic/libraries/architecture/workmanager)的思想，但侧重点不同。
 
 **WorkManager** 适用于需要**可靠运行**（ps:并不可靠）的工作，即使用户导航离开屏幕、退出应用或重启设备也不影响工作的执行。
 
