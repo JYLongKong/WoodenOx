@@ -1,6 +1,7 @@
 package com.lgjy.woodenox.config
 
 import android.content.Context
+import com.lgjy.woodenox.condition.ConditionManager
 import com.lgjy.woodenox.framework.TaskFactory
 import com.lgjy.woodenox.util.LogP
 
@@ -10,6 +11,13 @@ import com.lgjy.woodenox.util.LogP
  *
  * 木牛流马配置中心
  */
+
+// 重试次数超过该值任务状态则设为RECYCLED
+const val THRESHOLD_RECYCLED_TIMES = 10
+const val THRESHOLD_DOZE_TIMES = 3
+
+const val TIMEOUT_CONNECT: Long = 8_000L
+const val TIMEOUT_CALL: Long = 10_000L
 
 class Configuration private constructor(builder: Builder) {
 

@@ -2,9 +2,11 @@ package com.lgjy.woodenox.framework.scheduler
 
 import com.lgjy.woodenox.api.WoodenOxImpl
 import com.lgjy.woodenox.condition.EnvConditionListener
+import com.lgjy.woodenox.config.THRESHOLD_RECYCLED_TIMES
 import com.lgjy.woodenox.db.Task
 import com.lgjy.woodenox.db.TaskDatabase
 import com.lgjy.woodenox.entity.TaskState
+import com.lgjy.woodenox.framework.ExecutionListener
 import com.lgjy.woodenox.framework.task.ConstrainedTask
 import com.lgjy.woodenox.util.LogP
 import org.json.JSONObject
@@ -115,12 +117,12 @@ class RunningScheduler internal constructor(
 
     override fun onEnvConditionChanged(envCond: Int) {
         when {
-            envCond and mConstrainedTask.getCondtionRequired() == mConstrainedTask.getCondtionRequired() -> { // 条件全部满足
+            envCond and mConstrainedTask.getConditionRequired() == mConstrainedTask.getConditionRequired() -> { // 条件全部满足
                 mConstrainedTask.getConstrainedTasks()
                     .forEach { woodenOxImpl.startTask(it.taskId) }
                 mConstrainedTask.clear()
             }
-            envCond and mConstrainedTask.getCondtionRequired() == 0 -> {   // 条件全都不满足
+            envCond and mConstrainedTask.getConditionRequired() == 0 -> {   // 条件全都不满足
                 LogP.d(TAG, "onConditionChanged: no condition met, do nothing")
                 // TODO: 2021/3/18  阻塞"全部"任务
             }

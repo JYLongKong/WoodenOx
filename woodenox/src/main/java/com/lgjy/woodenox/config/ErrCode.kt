@@ -7,10 +7,10 @@ package com.lgjy.woodenox.config
  * 错误码
  */
 
-const val ERRCODE_OK = 0
-const val ERRCODE_FULL_TASK_POOL = 1
-const val ERRCODE_INVALID_URL = 2
-const val ERRCODE_UNKNOWN_APPID = 3
-const val ERRCODE_UNKNOWN_CONTEXT_ID = 4
-const val ERRCODE_UNKNOWN_CONTEXT_TYPE = 5
-const val ERRCODE_CONTEXT_PARAMS = 6
+const val ERR_OK = 0
+const val ERR_FULL_TASK_POOL = 1
+const val ERR_INVALID_URL = 2
+const val ERR_UNKNOWN_APPID = 3
+const val ERR_UNKNOWN_CONTEXT_ID = 4
+const val ERR_UNKNOWN_CONTEXT_TYPE = 5
+const val ERR_CONTEXT_PARAMS = 6

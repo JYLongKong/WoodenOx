@@ -7,6 +7,9 @@ import com.lgjy.woodenox.db.TaskConvertor
 import com.lgjy.woodenox.db.TaskDao
 import com.lgjy.woodenox.db.TaskDatabase
 import com.lgjy.woodenox.entity.TaskState
+import com.lgjy.woodenox.framework.TaskBuffer
+import com.lgjy.woodenox.framework.TaskDispatcher
+import com.lgjy.woodenox.framework.TaskProcessor
 import com.lgjy.woodenox.framework.executor.TaskExecutor
 import com.lgjy.woodenox.framework.queue.DozeQueue
 import com.lgjy.woodenox.framework.queue.RunningQueue

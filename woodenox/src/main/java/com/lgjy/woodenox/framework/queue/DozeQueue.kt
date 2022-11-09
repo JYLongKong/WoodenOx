@@ -1,5 +1,6 @@
 package com.lgjy.woodenox.framework.queue
 
+import com.lgjy.woodenox.config.THRESHOLD_DOZE_TIMES
 import com.lgjy.woodenox.db.Task
 import com.lgjy.woodenox.util.LogP
 import kotlinx.coroutines.delay

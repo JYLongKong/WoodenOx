@@ -63,7 +63,7 @@ class ConstrainedTask(private val requiredConditionListener: RequiredConditionLi
         }
     }
 
-    fun getCondtionRequired(): Int = mConditionRequired
+    fun getConditionRequired(): Int = mConditionRequired
 
     fun getConstrainedTasks(): Collection<Task> = mConstrainedTasks.values
 

@@ -16,7 +16,7 @@ import com.lgjy.woodenox.util.LogP
 
 internal object TaskConvertor {
 
-    private val TAG = "===".intern() + TaskConvertor::class.java.simpleName
+    private const val TAG = "===TaskConvertor"
     // 高于该位的内容决定Context的类型 todo
     private const val CONTEXT_TYPE_BIT: Int = 50
     private const val delimiter = '&'
