@@ -1,9 +1,9 @@
 package com.lgjy.woodenox.db
 
-import android.content.ContextWrapper
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.lgjy.woodenox.entity.ContextWrapper
 import com.lgjy.woodenox.entity.TaskState
 
 /**
